@@ -27,12 +27,14 @@ For a detailed explaination of the data format, please refer to [this doc](asset
 
 ```bash
 # TEST DATA
+# 13 methods; 110 prompts; 120 uniform RGB and normal map renderings for each.
+# Google Drive: https://drive.google.com/file/d/1pYmSRu_oMy_v6f7ngnkFER6PNWmJAe52/view?usp=sharing
 # to be released this week.
 ```
 
 ### Step 2. Preparing the data
 
-Please find the `prompts.json` file under the tournament folder (e.g. `data/t23d-tournament-v0/prompts.json`).
+Please find the `prompts.json` file under the tournament folder (e.g. `data/tournament-v0/prompts.json`).
 For each prompt listed inside, use your text-to-3D generative model to create one or more shapes per prompt.
 For each of these shapes, please render 120 evenly spaced views using the camera angle chosen by the [Threestudio](https://github.com/threestudio-project/threestudio) codebase.
 For each render, please aim to create 512x512 resolution.
@@ -118,7 +120,7 @@ If you find our codebase useful for your research, please cite:
 @article{wu2023gpteval3d,
   author    = {Tong Wu, Guandao Yang, Zhibing Li, Kai Zhang, Ziwei Liu, Leonidas Guibas, Dahua Lin, Gordon Wetzstein},
   title     = {GPT-4V(ision) is a Human-Aligned Evaluator for Text-to-3D Generation},
-  journal={arXiv preprint arXiv:xxxxxx},
+  journal={arXiv preprint arXiv:2401.04092},
   year      = {2023},
 }
 ```
