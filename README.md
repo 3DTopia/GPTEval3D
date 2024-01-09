@@ -29,7 +29,9 @@ For a detailed explaination of the data format, please refer to [this doc](asset
 # TEST DATA
 # 13 methods; 110 prompts; 120 uniform RGB and normal map renderings for each.
 # Google Drive: https://drive.google.com/file/d/1pYmSRu_oMy_v6f7ngnkFER6PNWmJAe52/view?usp=sharing
-# to be released this week.
+cd data/tournament-v0
+gdown "https://drive.google.com/uc?id=1pYmSRu_oMy_v6f7ngnkFER6PNWmJAe52"
+unzip methods
 ```
 
 ### Step 2. Preparing the data
