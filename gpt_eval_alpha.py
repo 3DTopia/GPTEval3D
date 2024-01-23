@@ -55,7 +55,7 @@ def score_with_new_tournament(args):
     tournament = t23d_tournament.T23DTournament(args.tournament)
     if args.comparisons is None: 
         args.comparisons = osp.join(
-            args.tournament, "comparisons",
+            "comparisons",
             "full-%s" % (time.strftime('%Y-%b-%d-%H-%M-%S')))
         question_methods = tournament.create_comparisons_for_tournament(
             args.comparisons,
@@ -84,7 +84,7 @@ def score_with_new_tournament(args):
     if args.output is None:
         args.output = args.comparisons
     os.makedirs(args.output, exist_ok=True)
-    json.dump(all_scores, open(osp.join(args.output, "scores.json"), "w"))
+    json.dump(all_scores, open(osp.join(args.output, "scores.json"), "w"), indent=4)
     
 
 def score_with_existing_tournament(args):
@@ -131,7 +131,7 @@ def score_with_existing_tournament(args):
     if args.output is None:
         args.output = args.comparisons
     os.makedirs(args.output, exist_ok=True)
-    json.dump(all_scores, open(osp.join(args.output, "scores.json"), "w"))
+    json.dump(all_scores, open(osp.join(args.output, "scores.json"), "w"), indent=4)
     
 def test_elo(args):
     # Load tournament information

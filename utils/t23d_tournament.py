@@ -109,7 +109,7 @@ class T23DTournament():
     def __init__(self, path):
         self.path = path
         # REQUIRED: configuration
-        self.cfg = json.load(open(osp.join(path, "config.json")))
+        self.cfg = json.load(open(osp.join(path, "config_lizb.json")))
         
         # REUIQRED: input prompts    
         self.prompts = json.load(open(osp.join(path, "prompts.json")))
@@ -164,18 +164,25 @@ class T23DTournament():
                 ensemble_modes.extend([en] * en['num_comparisons'])
             assert total_comparisons < budget
             pbar = tqdm.tqdm(total=total_comparisons)
+            ks = list(scheduled.keys())
+            random.shuffle(ks)
             for _ in ensemble_modes:
-                pbar.update(requests)
-                for (mname_1, mname_2), scheduled_pids in scheduled.items():
-                    method1 = method_lst[mname_1]
-                    method2 = method_lst[mname_2]
-                    common_prompt_ids = list(
-                        method1.prompt_ids & method2.prompt_ids -  scheduled_pids
-                    )
-                    if len(common_prompt_ids) > 0:
-                        prompt_id = random.choice(common_prompt_ids)
-                        scheduled[(mname_1, mname_2)].add(prompt_id)
-                        scheduled_lst.append([method_lst[mname_1], method_lst[mname_2], prompt_id])
+                pbar.update(1)
+                if len(ks) == 0:
+                    ks = list(scheduled.keys())
+                    random.shuffle(ks)
+                mname_1, mname_2 = ks.pop()
+                scheduled_pids = scheduled[(mname_1, mname_2)]
+                method1 = method_lst[mname_1]
+                method2 = method_lst[mname_2]
+                common_prompt_ids = list(
+                    method1.prompt_ids & method2.prompt_ids -  scheduled_pids
+                )
+                if len(common_prompt_ids) > 0: # fixme
+                    prompt_id = random.choice(common_prompt_ids)
+                    scheduled[(mname_1, mname_2)].add(prompt_id)
+                    scheduled_lst.append([method_lst[mname_1], method_lst[mname_2], prompt_id])
+            pbar.close()
         else:
             # no specific ensemble strategy
             pbar = tqdm.tqdm(total=budget)
@@ -206,10 +213,10 @@ class T23DTournament():
         print("Augmenting pairs")
         info = {}
         cnt = 0
-        for (method1, method2, pid), mode in tqdm.tqdm(zip(scheduled, ensemble_modes)):
+        for (method1, method2, pid), mode in tqdm.tqdm(zip(scheduled, ensemble_modes), total=len(ensemble_modes)):
             for eid in range(repeats):
                 comparison = self._create_comparison_(
-                    method1, method2, pid, flip=(eid % 2 == 0), mode=mode)
+                    method1, method2, pid, flip=None, mode=mode)
                 out_path = osp.join(out_folder, "%d.png" % cnt)
                 info[cnt] = {
                     "m1": comparison["m1"],
@@ -230,7 +237,7 @@ class T23DTournament():
                 out_pil_image.save(out_path)
                 cnt += 1
         json.dump(info, 
-                  open(osp.join(out_folder, "question_methods.json"), "w"))
+                  open(osp.join(out_folder, "question_methods.json"), "w"), indent=4)
         return info
   
      
@@ -248,31 +255,57 @@ class T23DTournament():
             # compare to all methods
             method_names = sorted(list(self.methods.keys()))
         method_lst = {n:self.methods[n] for n in method_names}
-           
-        # Schedule comparisons 
-        requests = 0 
-        scheduled = {n: set() for n in method_names} # method_name -> set
-        while requests + repeats <= budget:
-            for method_name, method in method_lst.items():
+
+        print("Collecting pairs")
+        sceduled = {n: set() for n in method_names}
+        scheduled_lst = []
+        if self.cfg['ensembles'] is not None:
+            total_comparisons = np.sum([en['num_comparisons'] for en in self.cfg['ensembles']])
+            ensemble_modes = []
+            for en in self.cfg['ensembles']:
+                ensemble_modes.extend([en] * en['num_comparisons'])
+            assert total_comparisons < budget
+            pbar = tqdm.tqdm(total=total_comparisons)
+            ks = method_names.copy()
+            random.shuffle(ks)
+            for _ in ensemble_modes:
+                pbar.update(1)
+                if len(ks) == 0:
+                    ks = method_names.copy()
+                    random.shuffle(ks)
+                m2 = ks.pop()
+                scheduled_pids = sceduled[m2]
+                method2 = method_lst[m2]
                 common_prompt_ids = list(
-                    new_method.prompt_ids & method.prompt_ids - 
-                    scheduled[method_name]
+                    new_method.prompt_ids & method2.prompt_ids -  scheduled_pids
                 )
                 if len(common_prompt_ids) > 0:
                     prompt_id = random.choice(common_prompt_ids)
-                    scheduled[method_name].add(prompt_id)
-                    
-                requests += repeats
-                if requests + repeats > budget:
-                    break
-                
+                    sceduled[m2].add(prompt_id)
+                    scheduled_lst.append([new_method, method2, prompt_id])
+        else:
+            # Schedule comparisons 
+            requests = 0 
+            while requests + repeats <= budget:
+                for method_name, method in method_lst.items():
+                    common_prompt_ids = list(
+                        new_method.prompt_ids & method.prompt_ids - 
+                        sceduled[method_name]
+                    )
+                    if len(common_prompt_ids) > 0:
+                        prompt_id = random.choice(common_prompt_ids)
+                        sceduled[method_name].add(prompt_id)
+                        scheduled_lst.append([new_method, method, prompt_id])
+                        
+                    requests += repeats
+                    if requests + repeats > budget:
+                        break 
+            ensemble_modes = [None] * len(scheduled_lst)
+
         # Augment the comparisons and save it to out_folder
         print("Augmenting pairs")
-        scheduled_lst = [
-            (new_method, method_lst[mn], pids) 
-            for mn, pids in scheduled.items()]
         info = self.augment_comparisons(
-            scheduled_lst, repeats, out_folder) 
+            scheduled_lst, ensemble_modes, repeats, out_folder) 
         return info
    
     
@@ -322,32 +355,46 @@ class T23DTournament():
         client = OpenAI(api_key=api_key, base_url=base_url)
 
     def single_runner(self, args):
-        qid, qid_answered, question_methods, prompt_root = args
-        if qid in qid_answered:
-            return None
+        qid, qid_answered, question_methods, prompt_root, answers_dir, n_choices = args
         qinfo = question_methods[qid]
-        # print("="*40)
-        # print("Question:")
-        # print(qinfo)
-        # print("-"*40)
+        answers = []
+        if osp.exists(osp.join(answers_dir, f'{qid}_0.txt')):
+            for i in range(n_choices):
+                with open(osp.join(answers_dir, f'{qid}_{i}.txt'), 'r') as f:
+                    ansnwer = f.read()
+                    answers.append(ansnwer)
+            err = None
+        else:
+            # print("="*40)
+            # print("Question:")
+            # print(qinfo)
+            # print("-"*40)
 
-        gpt_prompt = qinfo['gpt_prompt'] if 'gpt_prompt' in qinfo else random.choice(self.cfg["gpt_prompts"])
-        prompt = gpt4v_utils.make_comparison_prompt(
-            qinfo["prompt"],
-            osp.join(prompt_root, gpt_prompt)
-        )
-        print("Prompt:")
-        print(qinfo["prompt"])
-        print("-" * 40)
+            gpt_prompt = qinfo['gpt_prompt'] if 'gpt_prompt' in qinfo else random.choice(self.cfg["gpt_prompts"])
+            prompt = gpt4v_utils.make_comparison_prompt(
+                qinfo["prompt"],
+                osp.join(prompt_root, gpt_prompt)
+            )
+            print("Prompt:")
+            print(qinfo["prompt"])
+            print("-" * 40)
 
-        time.sleep(5)
-        response, err = gpt4v_utils.call_gpt_4v(
-            client, prompt, qinfo["image_path"], n_choices=3)
-        print("Response:")
-        print(qid)
-        print(response)
-        print("-" * 40)
-        return qid, qinfo, response, err
+            time.sleep(5)
+            response, err = gpt4v_utils.call_gpt_4v(
+                client, prompt, qinfo["image_path"], n_choices=n_choices)
+            print("Response:")
+            print(qid)
+            print(response)
+            print("-" * 40)
+            if response is not None:
+                for i in range(n_choices):
+                    answer = response.choices[i].message.content
+                    with open(osp.join(answers_dir, f'{qid}_{i}.txt'), 'w') as f:
+                        f.write(answer)
+                    answers.append(answer)
+            else:
+                answers = None
+        return qid, qinfo, answers, err
 
     
     def run_gpt4_judge(self, api_key, base_url, question_methods, out_folder,
@@ -363,11 +410,12 @@ class T23DTournament():
         comparison_results = {i:[] for i in range(len(self.cfg["criteria"]))} 
         comaprisons_out_fname = osp.join(out_folder, "comparisons.json")
         if osp.isfile(comaprisons_out_fname):
-            comparison_results = json.load(open(comaprisons_out_fname))
-        
+            comparison_results = json.load(open(comaprisons_out_fname)) # FIXME error (resume from existing)
+
         # Book keeping
         # TODO: resume from existing?
         qid_lst = list(question_methods.keys())
+        os.makedirs(os.path.join(out_folder, 'answers'), exist_ok=True)
         
         qid_answered = {}
         answered_out_fname = osp.join(out_folder, "answered.json")
@@ -395,9 +443,10 @@ class T23DTournament():
                 while len(sp_todo_lst) > 0:
                     failed_qid_lst = []
                     for qid in tqdm.tqdm(sp_todo_lst):
-                        qid, qinfo, response, err = self.single_runner((qid, qid_answered, question_methods, self.path))
-                        if response is not None:
-                            todo_result_lst.append((qid, qinfo, response, err))
+                        answer_dir = os.path.join(out_folder, 'answers')
+                        qid, qinfo, answers, err = self.single_runner((qid, qid_answered, question_methods, self.path, answer_dir, 3))
+                        if answers is not None:
+                            todo_result_lst.append((qid, qinfo, answers, err))
                         else:
                             failed_qid_lst.append(qid)
                     sp_todo_lst = failed_qid_lst 
@@ -411,7 +460,8 @@ class T23DTournament():
                     try:
                         # mp_todo_result_lst = pool.map(self.single_runner, [(qid, qid_answered, question_methods, self.path) for qid in todo_qid_lst])
                         mp_todo_result_lst = []
-                        args_list = [(qid, qid_answered, question_methods, self.path) for qid in mp_todo_lst]
+                        args_list = [(qid, qid_answered, question_methods, self.path,
+                                      os.path.join(out_folder, 'answers'), 3) for qid in mp_todo_lst]
                         for args in args_list:
                             res = pool.apply_async(self.single_runner, (args,), callback=handle_success, error_callback=handle_error)
                             mp_todo_result_lst.append(res)
@@ -441,20 +491,20 @@ class T23DTournament():
                     print('failed_qid_lst:', failed_qid_lst)
                     mp_todo_lst = failed_qid_lst
 
-            for qid, qinfo, response, err in todo_result_lst:
-                if response is None:
+            for qid, qinfo, answers, err in todo_result_lst:
+                if answers is None:
                     qid_errors.append((qid, str(err)))
                     continue
-                answer_lst = self.parse_response(response)
-                print("Answer:")
-                print(answer_lst)
-                print("-"*40)
+                answer_lst = self.parse_response(answers, qinfo)
+                # print("Answer:")
+                # print(answer_lst)
+                # print("-"*40)
                 if len(answer_lst) > 0:
                     # Book keeping
                     qid_answered[qid] = {
                         "question": qinfo,
                         "answer": answer_lst, # n_choices x n_criteria
-                        "response": str(response)
+                        "response": str(answers)
                     }
                     # Final output
                     for ans in answer_lst:
@@ -469,12 +519,12 @@ class T23DTournament():
                                 "result": a
                             })
                 else:
-                    qid_errors.append((qid, str(response)))
+                    qid_errors.append((qid, str(answers)))
             # Save to the out folder
             curr_round += 1
-            json.dump(qid_answered, open(answered_out_fname, "w"))
-            json.dump(qid_errors, open(errors_out_fname, "w"))
-            json.dump(comparison_results, open(comaprisons_out_fname, "w"))
+            json.dump(qid_answered, open(answered_out_fname, "w"), indent=4)
+            json.dump(qid_errors, open(errors_out_fname, "w"), indent=4)
+            json.dump(comparison_results, open(comaprisons_out_fname, "w"), indent=4)
             
         # Finally create comparisons
         return comparison_results, {
@@ -482,35 +532,37 @@ class T23DTournament():
             "errors": qid_errors
         }
                 
-    def parse_response(self, response):
+    def parse_response(self, answers, info):
         # https://platform.openai.com/docs/api-reference/chat/object
         out_lst = []
-        for response_choice in response.choices:
-            if response_choice.finish_reason == "stop":
-                response_text = response_choice.message.content
-                last_line = response_text.strip(" \n").split("\n")[-1]
-                try:
-                    out = [
-                        int(x) for x in last_line.strip(" \n").split(" ")]
-                    assert len(out) == len(self.cfg["criteria"])
-                    assert all([x in [1,2,3] for x in out])
-                    # Transform answer format
-                    def f(x):
-                        if x == 1:
-                            return -1
-                        elif x == 2:
-                            return 1
-                        elif x == 3:
-                            return 0
-                        raise ValueError
-                    out = [f(x) for x in out]
-                    out_lst.append(out)
-                except:
-                    # out = [False] * len(self.cfg["criteria"])
-                    pass
-            else:
-                print(response_choice)
-                breakpoint()
+        # for response_choice in response.choices:
+        #     if response_choice.finish_reason == "stop":
+        #         response_text = response_choice.message.content
+        #     else:
+        #         print(response_choice)
+        #         breakpoint()
+        for ans in answers:
+            last_line = ans.strip(" \n").split("\n")[-1]
+            try:
+                out = [
+                    int(x) for x in last_line.strip(" \n").split(" ")]
+                assert len(out) == len(info["dimensions"])
+                assert all([x in [1,2,3] for x in out])
+                # Transform answer format
+                def f(x):
+                    if x == 1:
+                        return -1
+                    elif x == 2:
+                        return 1
+                    elif x == 3 or x == 4:
+                        return 0
+                    raise ValueError
+                out = [f(x) for x in out]
+                out_lst.append(out)
+            except:
+                # out = [False] * len(self.cfg["criteria"])
+                pass
+
         return out_lst
       
             

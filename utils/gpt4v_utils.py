@@ -1,16 +1,37 @@
 import base64
+import io
 import os.path as osp
+from PIL import Image
 
 
 def encode_image(image_path):
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode('utf-8')
 
+def resize_and_encode_image(image_path, resize_ratio):
+    # Open the original image
+    with Image.open(image_path) as img:
+        # Calculate the new size
+        new_width = int(img.width * resize_ratio)
+        new_height = int(img.height * resize_ratio)
+
+        # Resize the image
+        resized_img = img.resize((new_width, new_height))
+
+        # Save the resized image to a buffer
+        buffer = io.BytesIO()
+        resized_img.save(buffer, format="JPEG")  # You can change the format if needed
+        buffer.seek(0)
+
+        # Encode the buffer to Base64
+        return base64.b64encode(buffer.getvalue()).decode('utf-8')
+
 
 def call_gpt_4v(client, user_prompt, user_img_path, 
                 max_tokens=4096, n_choices=3):
     # https://platform.openai.com/docs/api-reference/chat/create?lang=python
     base64_image = encode_image(user_img_path)
+    # base64_image = resize_and_encode_image(user_img_path, 0.5)
     conversation_history = [{
         "role": "user",
         "content": [
