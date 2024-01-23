@@ -23,7 +23,7 @@ pip install --upgrade tqdm numpy Pillow gdown
 
 ### Step 1. Data Download
 
-For a detailed explaination of the data format, please refer to [this doc](assets/data_format.md).
+For a detailed explanation of the data format, please refer to [this doc](assets/data_format.md).
 
 ```bash
 # TEST DATA
