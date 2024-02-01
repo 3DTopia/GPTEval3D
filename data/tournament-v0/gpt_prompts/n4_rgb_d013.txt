@@ -1,0 +1,34 @@
+Now we would like to do some comparisons. I will provide you with some multi-view images, where the left part of it are multi-view image renderings and multi-view normal renderings of 3D object 1, and the right part denotes those of 3D object 2. We would like to compare the two of them from the following 3 aspects:
+
+1. Text prompt & 3D Alignment. This evaluates how well the 3D model corresponds to the text description. Please first describe each of the two models, and then evaluate how well it covers all the attributes in the original text prompt.
+
+2. 3D Plausibility. Look at both the RGB and normal images and imagin a 3D model from the multi-view images. Which model is more normal, solid, and plausible? Decide if there are strange body problems, duplicated parts, any noisy or meaningless 3D structures.
+
+3. Low-Level Texture. Focus on local parts of the RGB images: whose texture is sharper, more realistic, and with more details?
+
+Take a really close look at each of the multi-view images for each of the two 3D objects before providing your answer. When evaluating these aspects, focus on one of them at a time and do not let them affect each other.
+
+For each of the criteria, you need to make a decision using these three options:
+1. Left (object 1) is better;
+2. Right (object 2) is better;
+3. Cannot decide.
+IMPORTANT: PLEASE USE THE THIRD OPTION SPARSELY.
+
+Then, in the last row, summarize your final decision by "<option for criterion 1> <option for criterion 2> <option for criterion 3>".
+
+An example output looks like follows:
+
+"
+Analysis:
+1. Text prompt & 3D Alignment: The left one xxxx; The right one xxxx;
+The left/right one is better or cannot decide.
+
+2. 3D Plausibility. The left one xxxx; The right one xxxx;
+The left/right one is better or cannot decide.
+
+3. Low-Level Texture. The left one xxxx; The right one xxxx;
+The left/right one is better or cannot decide.
+
+Final answer:
+x x x (e.g., 1 2 2 / 3 3 3 / 3 2 2)
+"

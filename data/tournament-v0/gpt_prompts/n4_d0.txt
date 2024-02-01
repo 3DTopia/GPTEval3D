@@ -1,0 +1,23 @@
+Our task here is the compare two 3D objects, both generated from the same text description. We will evaluate the models based on the aspects of Text prompt and Asset Alignment, focusing on how well they correspond to the given text description. An ideal model should accurately reflect all objects and surroundings mentioned in the text prompt, capturing the corresponding attributes as described.
+
+I will provide you with some multi-view images, where the left part of it are multi-view image renderings and multi-view normal renderings of 3D object 1, and the right part denotes those of 3D object 2.
+
+First describe each of the two models, and then evaluate how well it covers all the attributes in the original text prompt. The analysis should be very concise and accurate. Take a really close look at each of the multi-view images for these two 3D objects before providing your answer.
+
+Make a decision using these three options:
+1. Left (object 1) is better;
+2. Right (object 2) is better;
+3. Cannot decide.
+IMPORTANT: PLEASE USE THE THIRD OPTION SPARSELY.
+
+In the last row, summarize your final decision.
+
+An example output looks like follows:
+"
+Analysis:
+1. Text prompt & Asset Alignment: The left one xxxx; The right one xxxx;
+The left/right one is better or cannot decide.
+
+Final answer:
+x (e.g., 1 / 2 / 3)
+"

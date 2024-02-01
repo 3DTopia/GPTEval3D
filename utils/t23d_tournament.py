@@ -109,11 +109,18 @@ class T23DTournament():
     def __init__(self, path):
         self.path = path
         # REQUIRED: configuration
-        self.cfg = json.load(open(osp.join(path, "config_lizb.json")))
+        self.cfg = json.load(open(osp.join(path, "config.json")))
         
         # REUIQRED: input prompts    
         self.prompts = json.load(open(osp.join(path, "prompts.json")))
-           
+        if "prompt_ids" in self.cfg:
+            # self.prompts = [self.prompts[i] for i in self.cfg["prompt_ids"]]
+            self.valid_prompt_ids = set(self.cfg["prompt_ids"])
+        else:
+            self.valid_prompt_ids = set(np.arange(len(self.prompts)).tolist())
+        print(self.prompts)
+        print("valid_ids", self.valid_prompt_ids)
+
         # OPTIONAL: comparisons 
         c_fname = osp.join(path, "comparisons.json")
         self.comparisons = {n:[] for n in range(len(self.cfg["criteria"]))}
@@ -125,9 +132,12 @@ class T23DTournament():
         for m_name in sorted(list(os.listdir(osp.join(path, "methods")))):
             if m_name.startswith("."):
                 continue
+            if "methods" in self.cfg:
+                if m_name not in self.cfg["methods"]:
+                    continue
             self.methods[m_name] = T23DMethod(
                 m_name, osp.join(path, "methods", m_name), self.prompts)
-            
+        print(self.methods.keys())
         # TODO: Compute statistics for selecting next games
     
     def create_comparisons_for_tournament(
@@ -144,7 +154,7 @@ class T23DTournament():
             # compare to all methods
             method_names = sorted(list(self.methods.keys()))
         method_lst = {n:self.methods[n] for n in method_names}
-           
+
         # Schedule and shuffle pairwise comparisons
         requests = 0 
         scheduled = {(n1, n2): set() for n1, n2 in 
@@ -166,6 +176,7 @@ class T23DTournament():
             pbar = tqdm.tqdm(total=total_comparisons)
             ks = list(scheduled.keys())
             random.shuffle(ks)
+            print(len(ensemble_modes), "ensemble modes")
             for _ in ensemble_modes:
                 pbar.update(1)
                 if len(ks) == 0:
@@ -176,7 +187,7 @@ class T23DTournament():
                 method1 = method_lst[mname_1]
                 method2 = method_lst[mname_2]
                 common_prompt_ids = list(
-                    method1.prompt_ids & method2.prompt_ids -  scheduled_pids
+                    self.valid_prompt_ids & (method1.prompt_ids & method2.prompt_ids -  scheduled_pids)
                 )
                 if len(common_prompt_ids) > 0: # fixme
                     prompt_id = random.choice(common_prompt_ids)
@@ -192,7 +203,7 @@ class T23DTournament():
                     method1 = method_lst[mname_1]
                     method2 = method_lst[mname_2]
                     common_prompt_ids = list(
-                        method1.prompt_ids & method2.prompt_ids -  scheduled_pids
+                        self.valid_prompt_ids & (method1.prompt_ids & method2.prompt_ids -  scheduled_pids)
                     )
                     if len(common_prompt_ids) > 0:
                         prompt_id = random.choice(common_prompt_ids)

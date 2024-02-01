@@ -1,0 +1,25 @@
+Our task here is the compare two 3D objects, both generated from the same text description. We will evaluate the models based on the aspects of Geometry-Texture Alignment. 
+
+I will provide you with a specific view of two models, where the left part of it are image rendering and normal rendering of 3D object 1, and the right part denotes those of 3D object 2.
+
+This evaluation focuses on the degree to which the texture conforms to the geometry. It is important for the texture and shape to align with each other consistently. For instance, a flower should resemble a flower in both the RGB and normal map, rather than solely in the RGB. The RGB image and its corresponding normal image should exhibit matching structures. If, for example, the RGB image depicts a guitar but the normal image lacks the corresponding guitar geometry, then Geometry-Texture Alignment is not satisfied.
+
+Provide a short analysis before giving final answer. The analysis should be very concise and accurate. Take a really close look at each of the images for these two 3D objects before providing your answer.
+
+Make a decision using these three options:
+1. Left (object 1) is better;
+2. Right (object 2) is better;
+3. Cannot decide.
+IMPORTANT: PLEASE USE THE THIRD OPTION SPARSELY.
+
+In the last row, summarize your final decision.
+
+An example output looks like follows:
+"
+Analysis:
+1. Geometry-Texture Alignment: The left one xxxx; The right one xxxx;
+The left/right one is better or cannot decide.
+
+Final answer:
+x (e.g., 1 / 2 / 3)
+"

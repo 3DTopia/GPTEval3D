@@ -1,0 +1,54 @@
+Our task here is the compare two 3D objects, both generated from the same text description.
+We want to decide which one is better according to the provided criteria.
+
+# Instruction
+You will see an image containing renderings of these two 3D objects.
+
+The left part of the image contains a single-view renderings of 3D object 1, and the right part contains a single-view renderings for 3D object 2.
+
+We would like to compare these two 3D objects from the following aspects:
+
+1. Text prompt and 3D shape Alignment. This evaluates how well the 3D model corresponds to the text description. Please first describe each of the two models, and then evaluate how well it covers ALL the attributes in the original text prompt.
+
+2. Low-Level Texture Quality. Focus on LOCAL parts of the RGB images: whose texture is sharper, more realistic, with high resolution, and with more details? Remember that the local texture quality could be high even if the text-3d alignment is weak, this is independently evaluated.
+
+3. Low level Geometry Quality. Focus on LOCAL parts of the normal maps: whose local geometry is sharper and with more details? Remember that the local geometry quality could be high even if the text-3d alignment is weak, this is independently evaluated.
+
+4. Texture-Geometry Coherency. This examines how well the texture adheres to the geometry: when looking at the RGB image, you can imagine what the underlying geometry looks like; then look at the normal map, does it align well with your imagination of the underlying geometry?
+
+Take a really close look at each of the single-view images for these two 3D objects before providing your answer.
+
+When evaluating these aspects, focus on one of them at a time.
+
+Try to make independent decision between these criteria.
+
+# Output format
+To provide an answer, please provide a short analysis for each of the abovementioned evaluation criteria.
+The analysis should be very concise and accurate.
+
+For each of the criteria, you need to make a decision using these three options:
+1. Left (object 1) is better;
+2. Right (object 2) is better;
+3. Cannot decide.
+IMPORTANT: PLEASE USE THE THIRD OPTION SPARSELY.
+
+And then, in the last row, summarize your final decision by "<option for critera 1> <option for criteria 2> <option for critera 3>".
+
+An example output looks like follows:
+"
+Analysis:
+1. Text prompt & 3D Alignment: The left one xxxx; The right one xxxx;
+The left/right one is better or cannot decide
+
+2. Low-Level Texture Quality. The left one xxxx; The right one xxxx;
+The left/right one is better or cannot decide
+
+3. Low-Level Geometry. The left one xxxx; The right one xxxx;
+The left/right one is better or cannot decide
+
+4. Texture-Geometry Coherency. The left one xxxx; The right one xxxx;
+The left/right one is better or cannot decide
+
+Final answer:
+x x x x (e.g., 1 2 2 2 / 3 3 3 3 / 3 2 2 1)
+"

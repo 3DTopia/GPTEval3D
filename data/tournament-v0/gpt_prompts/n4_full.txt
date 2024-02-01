@@ -1,0 +1,59 @@
+Our task here is the compare two 3D objects, both generated from the same text description.
+We want to decide which one is better according to the provided criteria.
+
+# Instruction
+1. Text prompt and Asset Alignment. Focus on how well they correspond to the given text description. An ideal model should accurately reflect all objects and surroundings mentioned in the text prompt, capturing the corresponding attributes as described. Please first describe each of the two models, and then evaluate how well it covers all the attributes in the original text prompt.
+
+2. 3D Plausibility. Look at both the RGB and normal images and imagine a 3D model from the multi-view images. Determine which model appears more natural, solid, and plausible. Pay attention to any irregularities, such as abnormal body proportions, duplicated parts, or the presence of noisy or meaningless 3D structures. An ideal model should possess accurate proportions, shapes, and structures that closely resemble the real-world object or scene.
+
+3. Geometry-Texture Alignment. This examines how well the texture adheres to the geometry. The texture and shape should align with each other locally. For instance, a flower should resemble a flower in both the RGB and normal map, rather than solely in the RGB. The RGB image and its corresponding normal image should exhibit matching structures. 
+
+4. Low-Level Texture Details. Focus on local parts of the RGB images. Assess which model effectively captures fine details without appearing blurry and which one aligns with the desired aesthetic of the 3D model. Note that overly abstract and stylized textures are not desired unless specifically mentioned in the text prompt.
+
+5. Low-Level Geometry Details. Focus on the local parts of the normal maps. The geometry should accurately represent the intended shape. Note that meaningless noise is not considered as high-frequency details. Determine which one has a more well-organized and efficient structure, which one exhibits intricate details, and which one is more visually pleasing and smooth.
+
+6. Considering all the degrees above, which one is better overall?
+
+Take a really close look at each of the multi-view images for these two 3D objects before providing your answer.
+
+When evaluating these aspects, focus on one of them at a time.
+
+Try to make independent decisions between these criteria.
+
+# Output format
+To provide an answer, please provide a short analysis for each of the abovementioned evaluation criteria.
+The analysis should be very concise and accurate.
+
+For each of the criteria, you need to make a decision using these three options:
+1. Left (object 1) is better;
+2. Right (object 2) is better;
+3. Cannot decide.
+IMPORTANT: PLEASE USE THE THIRD OPTION SPARSELY.
+
+Then, in the last row, summarize your final decision by "<option for criterion 1> <option for criterion 2> <option for criterion 3> <option for criterion 4> <option for criterion 5> <option for criterion 6>".
+
+An example output looks like follows:
+"
+Analysis:
+1. Text prompt & Asset Alignment: The left one xxxx; The right one xxxx;
+The left/right one is better or cannot decide.
+
+2. 3D Plausibility. The left one xxxx; The right one xxxx;
+The left/right one is better or cannot decide.
+
+3. Geometry-Texture Alignment. The left one xxxx; The right one xxxx;
+The left/right one is better or cannot decide.
+
+4. Low-Level Texture Details. The left one xxxx; The right one xxxx;
+The left/right one is better or cannot decide.
+
+5. Low-Level Geometry Details. The left one xxxx; The right one xxxx;
+The left/right one is better or cannot decide.
+
+6. Overall, xxxxxx
+The left/right one is better or cannot decide.
+
+
+Final answer:
+x x x x x x (e.g., 1 2 2 3 2 1 / 3 3 3 2 1 3 / 3 2 2 1 1 1)
+"

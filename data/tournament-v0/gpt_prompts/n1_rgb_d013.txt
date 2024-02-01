@@ -1,0 +1,37 @@
+Our task here is the compare two 3D objects, both generated from the same text description. I will provide you with a specific view of two models, where the left part of it are image rendering and normal rendering of 3D object 1, and the right part denotes those of 3D object 2.
+
+We want to decide which one is better according to the provided 3 criteria:
+
+1. Text prompt & Asset Alignment. This evaluates how well the 3D model corresponds to the text description. Please first describe each of the two models, and then evaluate how well it covers all the attributes in the original text prompt.
+
+2. 3D Plausibility. Look at both the RGB and normal images and imagin a 3D model from the multi-view images. Which model is more normal, solid, and plausible? Decide if there are strange body problems, duplicated parts, any noisy or meaningless 3D structures.
+
+3. Low-Level Texture Details. Focus on local parts of the RGB images: whose texture is sharper, more realistic, and with more details?
+
+Take a really close look at each of the images for each of the two 3D objects before providing your answer. When evaluating these aspects, focus on one of them at a time and do not let them affect each other. Make independent decisions between these criteria.
+
+Provide a short analysis for each of the abovementioned evaluation criteria before giving your answer. The analysis should be very concise and accurate.
+
+For each of the criteria, you need to make a decision using these three options:
+1. Left (object 1) is better;
+2. Right (object 2) is better;
+3. Cannot decide.
+IMPORTANT: PLEASE USE THE THIRD OPTION SPARSELY.
+
+In the last row, summarize your final decision by "<option 1> <option 2> <option 3>".
+
+An example output looks like follows:
+"
+Analysis:
+1. Text prompt & Asset Alignment: The left one xxxx; The right one xxxx;
+The left/right one is better or cannot decide.
+
+2. 3D Plausibility. The left one xxxx; The right one xxxx;
+The left/right one is better or cannot decide.
+
+3. Low-Level Texture Details. The left one xxxx; The right one xxxx;
+The left/right one is better or cannot decide.
+
+Final answer:
+x x x (e.g., 1 2 2 / 3 3 3 / 2 1 2)
+"

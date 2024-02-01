@@ -1,0 +1,25 @@
+Our task here is the compare two 3D objects, both generated from the same text description. We will evaluate the models based on the aspects of Low-Level Texture Details.
+
+I will provide you with a specific view of two models, where the left part of it are image rendering and normal rendering of 3D object 1, and the right part denotes those of 3D object 2.
+
+This evaluation will concentrate on the local parts of the RGB images. We will assess which model effectively captures fine details without appearing blurry and which one aligns with the desired aesthetic of the 3D model. It is important to note that overly abstract and stylized textures are not desired unless specifically mentioned in the text prompt.
+
+Provide a short analysis before giving final answer. The analysis should be very concise and accurate. Take a really close look at each of the multi-view images for these two 3D objects before providing your answer.
+
+Make a decision using these three options:
+1. Left (object 1) is better;
+2. Right (object 2) is better;
+3. Cannot decide.
+IMPORTANT: PLEASE USE THE THIRD OPTION SPARSELY.
+
+In the last row, summarize your final decision.
+
+An example output looks like follows:
+"
+Analysis:
+1. Low-Level Texture Details: The left one xxxx; The right one xxxx;
+The left/right one is better or cannot decide.
+
+Final answer:
+x (e.g., 1 / 2 / 3)
+"

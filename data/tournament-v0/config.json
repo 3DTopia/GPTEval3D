@@ -1,0 +1,180 @@
+{
+    "criteria": [
+        ["[0] Text-Asset Alignment", ""],
+        ["[1] 3D Plausibility", ""],
+        ["[2] Text-Geometry Alignment", ""],
+        ["[3] Texture Details", ""],
+        ["[4] Geometry Details", ""],
+        ["[5] Overall", ""]
+    ],
+    "ensembles": [
+        {
+            "num_views": 4,
+            "rgb": 1,
+            "normal": 1,
+            "gpt_prompt": "gpt_prompts/n4_full.txt",
+            "dimensions": [0,1,2,3,4,5],
+            "num_comparisons": 200
+        },
+        {
+            "num_views": 4,
+            "rgb": 1,
+            "normal": 1,
+            "gpt_prompt": "gpt_prompts/n4_d0.txt",
+            "dimensions": [0],
+            "num_comparisons": 100
+        },
+        {
+            "num_views": 4,
+            "rgb": 1,
+            "normal": 0,
+            "gpt_prompt": "gpt_prompts/n4_rgb_d013.txt",
+            "dimensions": [0,1,3],
+            "num_comparisons": 200
+        },
+        {
+            "num_views": 1,
+            "rgb": 1,
+            "normal": 1,
+            "gpt_prompt": "gpt_prompts/n1_d0342.txt",
+            "dimensions": [0,3,4,2],
+            "num_comparisons": 200
+        },
+        {
+            "num_views": 4,
+            "rgb": 1,
+            "normal": 1,
+            "gpt_prompt": "gpt_prompts/n4_d0.txt",
+            "dimensions": [0],
+            "num_comparisons": 100
+        },
+        {
+            "num_views": 9,
+            "rgb": 1,
+            "normal": 1,
+            "gpt_prompt": "gpt_prompts/n9_d1.txt",
+            "dimensions": [1],
+            "num_comparisons": 150
+        },
+        {
+            "num_views": 1,
+            "rgb": 1,
+            "normal": 1,
+            "gpt_prompt": "gpt_prompts/n1_d2.txt",
+            "dimensions": [2],
+            "num_comparisons": 150
+        },
+        {
+            "num_views": 1,
+            "rgb": 1,
+            "normal": 1,
+            "gpt_prompt": "gpt_prompts/n1_d3.txt",
+            "dimensions": [3],
+            "num_comparisons": 150
+        },
+        {
+            "num_views": 1,
+            "rgb": 1,
+            "normal": 1,
+            "gpt_prompt": "gpt_prompts/n1_d4.txt",
+            "dimensions": [4],
+            "num_comparisons": 150
+        },
+        {
+            "num_views": 1,
+            "rgb": 1,
+            "normal": 0,
+            "gpt_prompt": "gpt_prompts/n1_rgb_d013.txt",
+            "dimensions": [0,1,3],
+            "num_comparisons": 100
+        }
+    ],
+    "gpt_prompts": "gpt_prompts/n4_full.txt",
+    "scores": [
+        {
+            "dreamfusion": 1000.0,
+            "dreamgaussian": 1100.5517378833188,
+            "fantasia3d": 1067.903518883835,
+            "instant3d": 1199.6469946784744,
+            "latent-nerf": 1222.3283031105111,
+            "magic3d": 1152.251056309405,
+            "mvdream": 1270.5476821166137,
+            "point-e": 725.1581236824456,
+            "prolificdreamer": 1261.796440722719,
+            "shap-e": 842.7543634328542,
+            "sjc": 1130.2266092135105,
+            "syncdreamer": 1041.1611861564409,
+            "wonder3d": 985.8759358621729
+        }, {
+            "dreamfusion": 1000.0,
+            "dreamgaussian": 953.5869940553453,
+            "fantasia3d": 891.8658507761363,
+            "instant3d": 1087.6461196720327,
+            "latent-nerf": 1144.8407870810004,
+            "magic3d": 1000.7697785624033,
+            "mvdream": 1147.4699842043506,
+            "point-e": 689.774370979962,
+            "prolificdreamer": 1058.7329959159363,
+            "shap-e": 842.4095303510309,
+            "sjc": 995.1136484981002,
+            "syncdreamer": 968.8039095037022,
+            "wonder3d": 941.4139468880614
+        }, {
+            "dreamfusion": 1000.0,
+            "dreamgaussian": 1158.63111224839,
+            "fantasia3d": 1005.9913820082404,
+            "instant3d": 1152.651513056407,
+            "latent-nerf": 1156.7039332957293,
+            "magic3d": 1084.4100322130466,
+            "mvdream": 1250.5708789531873,
+            "point-e": 688.5951797742882,
+            "prolificdreamer": 1151.9949908605001,
+            "shap-e": 846.021840383498,
+            "sjc": 1033.5307482331382,
+            "syncdreamer": 1083.133393367391,
+            "wonder3d": 931.8335308093375
+        }, {
+            "dreamfusion": 1000.0,
+            "dreamgaussian": 1126.1993579054742,
+            "fantasia3d": 1109.2937941701457,
+            "instant3d": 1151.9809948629718,
+            "latent-nerf": 1180.4697459023646,
+            "magic3d": 1178.0645370911247,
+            "mvdream": 1324.8885900751097,
+            "point-e": 715.6913229095021,
+            "prolificdreamer": 1246.3657976207576,
+            "shap-e": 784.3989328687157,
+            "sjc": 1079.8579975148405,
+            "syncdreamer": 1064.2186168620144,
+            "wonder3d": 973.0627486077333
+        }, {
+            "dreamfusion": 1000.0,
+            "dreamgaussian": 1130.8383038804272,
+            "fantasia3d": 1027.4829508167593,
+            "instant3d": 1181.345710608709,
+            "latent-nerf": 1160.772159600711,
+            "magic3d": 1084.5890097060953,
+            "mvdream": 1255.456851046554,
+            "point-e": 745.5454393365877,
+            "prolificdreamer": 1180.5626214213867,
+            "shap-e": 862.8912546742089,
+            "sjc": 1042.4951275304384,
+            "syncdreamer": 1045.7073245675715,
+            "wonder3d": 967.8161653820131
+        }, {
+            "dreamfusion": 1000.0,
+            "dreamgaussian": 951.4283939434748,
+            "fantasia3d": 933.4705383106932,
+            "instant3d": 1097.8150892791245,
+            "latent-nerf": 1178.6638888565576,
+            "magic3d": 961.6560121082898,
+            "mvdream": 1097.662877552883,
+            "point-e": 618.9355337353609,
+            "prolificdreamer": 1012.4968205397756,
+            "shap-e": 843.846996216357,
+            "sjc": 993.7928374866628,
+            "syncdreamer": 963.4886586063196,
+            "wonder3d": 970.9040394083427
+        }
+    ]
+}
