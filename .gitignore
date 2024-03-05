@@ -1,0 +1,10 @@
+__pycache__/
+dist/
+*.egg-info/
+
+data/tournament-v0/methods
+data/tournament-v0/comparisons
+data/my3d
+results
+
+run.sh # for test

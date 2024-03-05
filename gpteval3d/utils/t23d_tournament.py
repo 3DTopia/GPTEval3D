@@ -14,9 +14,9 @@ import os.path as osp
 from PIL import Image
 from openai import OpenAI
 from typing import Literal
-from utils import glide_elo
-from utils import image_utils
-from utils import gpt4v_utils
+from gpteval3d.utils import glide_elo
+from gpteval3d.utils import image_utils
+from gpteval3d.utils import gpt4v_utils
 from multiprocessing import Pool, cpu_count
 
 

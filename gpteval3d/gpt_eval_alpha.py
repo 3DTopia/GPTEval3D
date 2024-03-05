@@ -3,10 +3,10 @@ import time
 import json
 import argparse
 import os.path as osp
-from utils import t23d_tournament
+from gpteval3d.utils import t23d_tournament
 
 
-def parse_args():
+def __parse_args():
     parser = argparse.ArgumentParser(
         prog='python gpt_eval_alph.py', 
         description='Evaluation metrics based on GPT-4V.',
@@ -35,7 +35,7 @@ def parse_args():
         '-c', '--comparisons', default=None, 
         help="Folder storing the information of a list of comparisons.")
     parser.add_argument(
-        '-b', '--budget', default=10, type=int,
+        '-b', '--budget', default=1000, type=int,
         help="Number of requests budgeted for the evaluation task.")
     parser.add_argument(
         '-o', '--output', default=None, 
@@ -49,64 +49,62 @@ def parse_args():
     args = parser.parse_args()
     return args
 
-
-def score_with_new_tournament(args): 
+def score_with_new_tournament(tournament_folder, apikey=None, baseurl=None, comparisons=None, budget=1000, repeats=1, output=None):
     # Load tournament information
-    tournament = t23d_tournament.T23DTournament(args.tournament)
-    if args.comparisons is None: 
-        args.comparisons = osp.join(
+    tournament = t23d_tournament.T23DTournament(tournament_folder)
+    if comparisons is None: 
+        comparisons = osp.join(
             "comparisons",
             "full-%s" % (time.strftime('%Y-%b-%d-%H-%M-%S')))
         question_methods = tournament.create_comparisons_for_tournament(
-            args.comparisons,
-            budget=args.budget, 
-            repeats=args.repeats, 
+            comparisons,
+            budget=budget,
+            repeats=repeats,
         )
         print("Create %d comparisons." % len(question_methods))
         if len(question_methods) == 0:
             print("Not enough budget.")
             return
     else:
-        print("Use comparison results from %s" % args.comparisons)
+        print("Use comparison results from %s" % comparisons)
         question_methods = json.load(
-            open(osp.join(args.comparisons, "question_methods.json")))
+            open(osp.join(comparisons, "question_methods.json")))
 
     # Run GPT-4V
-    apikey = args.apikey
+    apikey = os.environ["OPENAI_API_KEY"] if apikey is None else apikey
     if apikey is None:
-        apikey = os.environ["OPENAI_API_KEY"]
+        raise ValueError("OpenAI API key is not provided.")
     results, info = tournament.run_gpt4_judge(
-        apikey, args.baseurl, question_methods,
-        args.comparisons, max_round=10)
+        apikey, baseurl, question_methods,
+        comparisons, max_round=10)
 
     # Compute ELO scores
     all_scores = tournament.get_elo_scores(results)
-    if args.output is None:
-        args.output = args.comparisons
-    os.makedirs(args.output, exist_ok=True)
-    json.dump(all_scores, open(osp.join(args.output, "scores.json"), "w"), indent=4)
-    
+    if output is None:
+        output = comparisons
+    os.makedirs(output, exist_ok=True)
+    json.dump(all_scores, open(osp.join(output, "scores.json"), "w"), indent=4)
 
-def score_with_existing_tournament(args):
+def score_with_existing_tournament(tournament_folder, method_folder, apikey=None, baseurl=None, comparisons=None, budget=1000, repeats=1, output=None):
     
     # Load tournament information
-    tournament = t23d_tournament.T23DTournament(args.tournament)
+    tournament = t23d_tournament.T23DTournament(tournament_folder)
     # Load new method information
     # All comparisons will be saved
-    method_name = osp.basename(args.method.strip("/"))
+    method_name = osp.basename(method_folder.strip("/"))
     new_method = t23d_tournament.T23DMethod(
-        method_name, args.method, tournament.prompts)
+        method_name, method_folder, tournament.prompts)
     
     # Schedule games between new method and the existing ones
-    if args.comparisons is None:
-        args.comparisons = osp.join(
-            args.tournament, "comparisons",
+    if comparisons is None:
+        comparisons = osp.join(
+            tournament_folder, "comparisons",
             "%s-%s" % (method_name, time.strftime('%Y-%b-%d-%H-%M-%S')))
         question_methods = tournament.create_comparisons_for_new_method(
             new_method, 
-            args.comparisons,
-            budget=args.budget, 
-            repeats=args.repeats, 
+            comparisons,
+            budget=budget, 
+            repeats=repeats, 
             method_names=None
         )
         print("Create %d comparisons." % len(question_methods))
@@ -114,43 +112,43 @@ def score_with_existing_tournament(args):
             print("Not enough budget.")
             return
     else:
-        print("Use comparison results from %s" % args.comparisons)
+        print("Use comparison results from %s" % comparisons)
         question_methods = json.load(
-            open(osp.join(args.comparisons, "question_methods.json")))
+            open(osp.join(comparisons, "question_methods.json")))
 
     # Run GPT-4V
-    apikey = args.apikey
+    apikey = os.environ["OPENAI_API_KEY"] if apikey is None else apikey
     if apikey is None:
-        apikey = os.environ["OPENAI_API_KEY"]
+        raise ValueError("OpenAI API key is not provided.")
     results, info = tournament.run_gpt4_judge(
-        apikey, args.baseurl, question_methods,
-        args.comparisons, max_round=10)
+        apikey, baseurl, question_methods,
+        comparisons, max_round=10)
     
     # Compute ELO scores
     all_scores = tournament.get_elo_scores_for_new_method(new_method, results)
-    if args.output is None:
-        args.output = args.comparisons
-    os.makedirs(args.output, exist_ok=True)
-    json.dump(all_scores, open(osp.join(args.output, "scores.json"), "w"), indent=4)
-    
-def test_elo(args):
+    if output is None:
+        output = comparisons
+    os.makedirs(output, exist_ok=True)
+    json.dump(all_scores, open(osp.join(output, "scores.json"), "w"), indent=4)
+
+def test_elo(tournament_folder, gpt_results, output):
     # Load tournament information
-    tournament = t23d_tournament.T23DTournament(args.tournament)
+    tournament = t23d_tournament.T23DTournament(tournament_folder)
     # Compute ELO scores
-    results = json.load(open(args.gpt_results, 'r'))
+    results = json.load(open(gpt_results, 'r'))
     all_scores = tournament.get_elo_scores(results)
-    os.makedirs(args.output, exist_ok=True)
+    os.makedirs(output, exist_ok=True)
     json.dump(all_scores, open(osp.join(args.output, "scores.json"), "w"))
 
 if __name__ == '__main__':
-    args = parse_args()
+    args = __parse_args()
     if args.eval == "new_method":
-        score_with_existing_tournament(args)
+        score_with_existing_tournament(args.tournament, args.method, args.apikey, args.baseurl, args.comparisons, args.budget, args.repeats, args.output)
     elif args.eval == "tournament":
-        score_with_new_tournament(args)
+        score_with_new_tournament(args.tournament, args.apikey, args.baseurl, args.comparisons, args.budget, args.repeats, args.output)
     elif args.eval == "score-comparisons":
-        raise NotImplemented
+        raise NotImplementedError
     elif args.eval == "load_previous_gpt":
-        test_elo(args)
+        test_elo(args.tournament, args.gpt_results, args.output)
     else:
         raise ValueError

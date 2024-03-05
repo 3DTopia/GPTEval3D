@@ -5,19 +5,11 @@ This contains an evaluation metric for text-to-3D generative models.
 
 ![teaser](assets/teaser.png)
 
-## Installation
+## Quickstart
 
-The main dependency of this codebase is OpenAI library and PyTorch. 
-For PyTorch installation, please refer to the official website as it highly depends on the environment.
-Following contains code for installation other packages:
+Run `pip install gpteval3d`.
 
-```bash
-# Instal OpenAI API
-pip install --upgrade openai
-
-# Other packages
-pip install --upgrade tqdm numpy Pillow gdown
-```
+Since our work relies on GPT-4, you need to set up your OpenAI API Key for usage. You can either set it as an environment variable (`export OPENAI_API_KEY='your-api-key-here'`) or explicitly pass it as a parameter to the function.
 
 ## Evaluate Your Text-to-3D Model
 
@@ -62,13 +54,13 @@ Finally, organize the rendered images into the following folder structure:
 
 Once we've put our data into a format our evaluation can parse, we can run the following command to obtain the ELO score placing your method among the existing tournament.
 
-```bash
-python gpt_eval_alpha.py \
-    --apikey <your_openai_api_key> \
-    --eval new_method \               # Evaluating new method
-    -t data/t23d-tournament-v0 \      # folder to tournament data
-    -m data/<your_method_name> \      # folder to method
-    -o results/<your_method_name>     # (optional) output directory
+```python
+from gpteval3d.gpt_eval_alpha import score_with_existing_tournament
+
+tournament_f = 'data/tournament-v0'
+method_f = 'data/my3d'
+apikey = 'your_api_key'
+score_with_existing_tournament(tournament_f, method_f, apikey)
 ```
 
 ## Compute Scores for a Tournament
@@ -100,13 +92,12 @@ please see [this link](assets/data_format.md).
 
 ### Step 2: Run Evaluation
 
-```bash
-python gpt_eval_alpha.py \
-    --apikey <your_openai_api_key> \
-    --eval tournament \               # Evaluating new method
-    -t <path-to-tournament-data> \    # folder to tournament data
-    -b 200 \                          # budget (number of requests)
-    -o results/<tournament-name>      # (optional) output directory
+```python
+from gpteval3d.gpt_eval_alpha import score_with_existing_tournament
+
+tournament_f = 'data/tournament-v0'
+apikey = 'your_api_key'
+score_with_new_tournament(tournament_f, apikey)
 ```
 
 ## Coming soon

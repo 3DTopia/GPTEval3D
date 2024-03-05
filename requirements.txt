@@ -1,0 +1,6 @@
+openai
+numpy
+tqdm
+Pillow
+gdown
+torch
