@@ -120,7 +120,8 @@ If you find our codebase useful for your research, please cite:
 
 ```bibtex
 @inproceedings{wu2023gpteval3d,
-   author = {Tong Wu and Guandao Yang and Zhibing Li and Kai Zhang and Ziwei Liu and Leonidas Guibas and Dahua Lin and Gordon Wetzstein},
+   author = {Tong Wu and Guandao Yang and Zhibing Li and Kai Zhang and
+             Ziwei Liu and Leonidas Guibas and Dahua Lin and Gordon Wetzstein},
    title = {GPT-4V(ision) is a Human-Aligned Evaluator for Text-to-3D Generation},
    booktitle = {CVPR},
    year = {2024},
