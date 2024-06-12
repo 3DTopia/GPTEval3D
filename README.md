@@ -5,6 +5,10 @@ This contains an evaluation metric for text-to-3D generative models.
 
 ![teaser](assets/teaser.png)
 
+## News
+
+- We released 110 image prompts corresponding to the text prompts. Each image is carefully selected to align with the text. We further remove the backgrounds using [rembg](https://github.com/danielgatis/rembg) or [Clipdrop](https://clipdrop.co/remove-background). Download the gallery at [this link](https://drive.google.com/file/d/1YUeQB3hKAT8D1uiQQdC3Ti_O7fpCo0Ud/view?usp=sharing).
+
 ## Installation
 
 The main dependency of this codebase is OpenAI library and PyTorch. 
